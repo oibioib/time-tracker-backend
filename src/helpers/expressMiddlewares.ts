@@ -21,6 +21,13 @@ const loggerRequest = (req: Request, res: Response, next: NextFunction) => {
   }
   const url = `${protocol}://${req.get('host')}${originalUrl}`;
   console.log(`${methodColorized} ${yellow(url)}`);
+  if (req.body) {
+    console.log('Request.body:');
+    console.log(req.body);
+  }
+  res.on('finish', () => {
+    console.log(`Response code: ${res.statusCode}`);
+  });
   next();
 };
 
