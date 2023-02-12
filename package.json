@@ -2,7 +2,17 @@
   "name": "time-tracker-backend",
   "version": "1.0.0",
   "description": "",
-  "scripts": {},
+  "scripts": {
+    "clean": "rimraf dist/",
+    "copy-files": "copyfiles -u 1 src/static/**/* dist/",
+    "build": "npm run clean && tsc && npm run copy-files",
+    "serve": "node ./dist/server.js",
+    "start": "npm run build && npm run serve",
+    "dev": "nodemon src/server.ts",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "start:ts-node": "ts-node src/server.ts"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
