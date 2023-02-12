@@ -5,10 +5,20 @@ import dataSource from '../data-source/data-source';
 import { Timer, User } from '../entity';
 
 const addTimer = async (req: Request, res: Response) => {
+  if (!req.body) {
+    res.status(400).send('No request body');
+    return;
+  }
+
   const requestUserId = req.body.userId;
   const requestTitle = req.body.title || '';
   const requestStartTime = req.body.startTime || Date.now().toString();
   const requestIsActive = req.body.isActive || 1;
+
+  if (!requestUserId) {
+    res.status(400).send('No user id');
+    return;
+  }
 
   const user = await dataSource.manager.findOneBy(User, { id: requestUserId });
 
