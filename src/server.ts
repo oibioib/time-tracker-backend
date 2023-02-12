@@ -5,6 +5,7 @@ import path from 'path';
 
 import { DEFAULT_PORT, ORIGIN_URLS } from './constants/constants';
 import dataSource from './data-source/data-source';
+import { defaultErrorHandler } from './helpers/expressHelpers';
 import loggerRequest from './helpers/expressMiddlewares';
 import {
   deleteRequests,
@@ -25,11 +26,12 @@ const PORT = process.env.PORT ? +process.env.PORT : DEFAULT_PORT;
         origin: ORIGIN_URLS,
       })
     );
-    app.use(loggerRequest);
     app.use(express.json());
+    app.use(loggerRequest);
+    app.use(defaultErrorHandler);
 
     app.get('/', (req, res) => {
-      res.sendFile(path.join(__dirname, 'static', 'index.html'));
+      res.sendFile(path.join(__dirname, 'static', 'docs', 'index.html'));
     });
 
     app.get('*.md$', (req, res) => {
