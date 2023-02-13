@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 
-import { Project, Timer, User } from '../entity';
+import { Client, Project, Timer, User } from '../entity';
 
 dotenv.config();
 
@@ -15,7 +15,7 @@ const dataSource = new DataSource({
   database: process.env.DB_DATABASE,
   synchronize: true,
   logging: false,
-  entities: [User, Timer, Project],
+  entities: [User, Timer, Project, Client],
   migrations: [],
   subscribers: [],
 });
