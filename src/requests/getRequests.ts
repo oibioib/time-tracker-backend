@@ -1,4 +1,5 @@
 import {
+  clientControllers,
   projectControllers,
   timersControllers,
   userControllers,
@@ -23,7 +24,7 @@ const getProjects = [
   },
   {
     request: '/projects/:uuid',
-    controller: projectControllers.getProject,
+    controller: setServiceUnavailable,
   },
 ];
 
@@ -61,12 +62,24 @@ const getUserTimers = [
   },
 ];
 
+const getUserClients = [
+  {
+    request: '/userclients',
+    controller: setServiceUnavailable,
+  },
+  {
+    request: '/userclients/:uuid',
+    controller: clientControllers.getUserClients,
+  },
+];
+
 const getRequests = [
   ...getUsers,
   ...getProjects,
   ...getTimers,
   ...getUserProjects,
   ...getUserTimers,
+  ...getUserClients,
 ];
 
 export default getRequests;

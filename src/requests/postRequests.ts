@@ -1,4 +1,9 @@
-import { timersControllers, userControllers } from '../controllers';
+import {
+  clientControllers,
+  projectControllers,
+  timersControllers,
+  userControllers,
+} from '../controllers';
 
 const postRequests = [
   {
@@ -8,6 +13,14 @@ const postRequests = [
   {
     request: '/timers',
     controller: timersControllers.addTimer,
+  },
+  {
+    request: '/userprojects',
+    controller: projectControllers.addUserProject,
+  },
+  {
+    request: '/userclients',
+    controller: clientControllers.addUserClient,
   },
 ];
 
