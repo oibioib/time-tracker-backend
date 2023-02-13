@@ -45,3 +45,30 @@
   ```
 </details>
 
+<details>
+  <summary>Get all user ACTIVE timers in INTREVAL by USER id</summary>
+
+  ```
+  method: GET
+  ```
+
+  ```
+  request body: none
+
+  ```
+
+  ```
+  headers: none
+  ```
+
+  ```
+  query param: ?from={timestamp}
+  query param: ?to={timestamp}
+  * from and to is optional, if not set this params, result will be like get all user timers by user id 
+  ```
+
+  ```
+  url example: {url}/usertimers/29f74412-ca98-41ca-89ec-d72dcd028c36?from=1676060155796&to=1676060335479
+  ```
+</details>
+

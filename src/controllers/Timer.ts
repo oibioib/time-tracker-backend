@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Between } from 'typeorm';
 import { validate as uuidValidate } from 'uuid';
 
 import dataSource from '../data-source/data-source';
@@ -104,6 +105,8 @@ const updateTimer = async (req: Request, res: Response) => {
 const getUserTimers = async (req: Request, res: Response) => {
   const requestUserId = req.params.uuid;
   const requestQueryStatus = req.query.status;
+  const requestQueryFrom = req.query.from ? +req.query.from : undefined;
+  const requestQueryTo = req.query.to ? +req.query.to : Date.now();
 
   if (!uuidValidate(requestUserId)) {
     res.status(400).send('Invalid user id');
@@ -116,31 +119,18 @@ const getUserTimers = async (req: Request, res: Response) => {
     return;
   }
 
-  const responseTimers: Timer[] = [];
+  const responseTimers = await dataSource.manager.find(Timer, {
+    where: {
+      user,
+      isActive: requestQueryStatus === 'active' ? 1 : undefined,
+      startTime: Between(requestQueryFrom || 1, requestQueryTo || Date.now()),
+    },
+    order: {
+      startTime: 'DESC',
+    },
+  });
 
-  if (requestQueryStatus !== 'active') {
-    const userTimers = await dataSource.manager.find(Timer, {
-      where: {
-        user,
-      },
-      order: {
-        startTime: 'DESC',
-      },
-    });
-    if (userTimers.length) {
-      responseTimers.push(...userTimers);
-    }
-  } else {
-    const userActiveTimers = await dataSource.manager.find(Timer, {
-      where: {
-        user,
-        isActive: 1,
-      },
-    });
-    responseTimers.push(...userActiveTimers);
-  }
-
-  res.set('X-Total-timers', `${responseTimers.length}`);
+  res.set('X-Total-timers', `${responseTimers ? responseTimers.length : 0}`);
   res.status(200).json(responseTimers);
 };
 
