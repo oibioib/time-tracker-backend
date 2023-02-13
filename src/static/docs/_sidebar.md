@@ -1,5 +1,6 @@
 * [/users](users.md)
 * [/timers](timers.md)
 * [/usertimers](usertimers.md)
-* [/projects](projects.md)
+<!-- * [/projects](projects.md) -->
 * [/userprojects](userprojects.md)
+* [/userclients](userclients.md)

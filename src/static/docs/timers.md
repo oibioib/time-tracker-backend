@@ -4,7 +4,7 @@
   <summary>Get single timer by TIMER id</summary>
 
   ```
-  method: get
+  method: GET
   ```
 
   ```
