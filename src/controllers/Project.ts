@@ -23,39 +23,6 @@ const getUserProjects = async (req: Request, res: Response) => {
   });
 
   if (userProjects) {
-    // const responseData = await Promise.all(
-    //   userProjects.map(async ({ id, title }) => {
-    //     const projectTime = await dataSource.manager.find(Timer, {
-    //       relations: {
-    //         project: true,
-    //       },
-    //       where: {
-    //         project: {
-    //           id,
-    //         },
-    //       },
-    //       select: {
-    //         totalTime: true,
-    //         project: {
-    //           id: false,
-    //           title: false,
-    //         },
-    //       },
-    //     });
-
-    //     const allTime = projectTime.reduce(
-    //       (sum, { totalTime }) => sum + +totalTime,
-    //       0
-    //     );
-
-    //     return {
-    //       id,
-    //       title,
-    //       totalTime: allTime,
-    //     };
-    //   })
-    // );
-
     type UserProject = {
       id: string;
       totalTime: number;
@@ -69,10 +36,6 @@ const getUserProjects = async (req: Request, res: Response) => {
       .addGroupBy('project.id')
       .where('timer.userId = :user', { user: requestUserId })
       .getRawMany();
-
-    // const userProjectsFiltered = userProjectsWithTotalTime.filter(
-    //   ({ id }) => !!id
-    // );
 
     const response = userProjects.map(({ id, title, color, salary }) => {
       const projectWithTotalTime = userProjectsWithTotalTime.filter(
