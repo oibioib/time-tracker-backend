@@ -13,7 +13,7 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "start:ts-node": "ts-node src/server.ts"
   },
-  "author": "",
+  "author": "Pavel Bodal, Aleksandr Teslin, Galina Hadatovich",
   "license": "ISC",
   "dependencies": {
     "colors": "^1.4.0",

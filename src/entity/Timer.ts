@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import Project from './Project';
 import User from './User';
@@ -30,9 +23,11 @@ class Timer {
   @ManyToOne(() => User, (user) => user.timers)
   user: User;
 
-  @OneToOne(() => Project)
-  @JoinColumn()
-  project: Project;
+  @ManyToOne(() => Project, (project) => project.timers, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  project: Project | null;
 }
 
 export default Timer;

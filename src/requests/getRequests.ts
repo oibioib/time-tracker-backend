@@ -72,6 +72,16 @@ const getUserClients = [
     controller: clientControllers.getUserClients,
   },
 ];
+const getUserTimersTimeByDay = [
+  {
+    request: '/usertimerstime',
+    controller: setServiceUnavailable,
+  },
+  {
+    request: '/usertimerstime/:uuid',
+    controller: timersControllers.getUserTimersTotalTimeByDay,
+  },
+];
 
 const getRequests = [
   ...getUsers,
@@ -80,6 +90,7 @@ const getRequests = [
   ...getUserProjects,
   ...getUserTimers,
   ...getUserClients,
+  ...getUserTimersTimeByDay,
 ];
 
 export default getRequests;

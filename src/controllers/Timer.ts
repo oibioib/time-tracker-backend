@@ -3,7 +3,7 @@ import { Between } from 'typeorm';
 import { validate as uuidValidate } from 'uuid';
 
 import dataSource from '../data-source/data-source';
-import { Timer, User } from '../entity';
+import { Project, Timer, User } from '../entity';
 
 const addTimer = async (req: Request, res: Response) => {
   if (!req.body) {
@@ -15,6 +15,7 @@ const addTimer = async (req: Request, res: Response) => {
   const requestTitle = req.body.title || '';
   const requestStartTime = req.body.startTime || Date.now().toString();
   const requestIsActive = req.body.isActive || 1;
+  const requestProjectId = req.body.projectId;
 
   if (!requestUserId) {
     res.status(400).send('No user id');
@@ -29,6 +30,16 @@ const addTimer = async (req: Request, res: Response) => {
     newTimer.title = requestTitle;
     newTimer.startTime = requestStartTime;
     newTimer.isActive = requestIsActive === 1 ? 1 : 0;
+
+    if (requestProjectId) {
+      const project = await dataSource.manager.findOneBy(Project, {
+        id: requestProjectId,
+      });
+      if (project) {
+        newTimer.project = project;
+      }
+    }
+
     const resultNewTimer = await dataSource.manager.save(newTimer);
     res.status(201).json(resultNewTimer);
   } else {
@@ -73,7 +84,9 @@ const updateTimer = async (req: Request, res: Response) => {
     req.body.title,
     req.body.totalTime,
     req.body.isActive,
+    req.body.projectId,
   ];
+
   const requestBodyParamsFiltered = requestBodyParams.filter(
     (requestBodyParam) => requestBodyParam !== undefined
   );
@@ -98,6 +111,21 @@ const updateTimer = async (req: Request, res: Response) => {
   timer.title = req.body.title || timer.title;
   timer.totalTime = req.body.totalTime || timer.totalTime;
 
+  const requestProjectId = req.body.projectId;
+
+  if (requestProjectId) {
+    if (requestProjectId === 'null') {
+      timer.project = null;
+    } else {
+      const project = await dataSource.manager.findOneBy(Project, {
+        id: requestProjectId,
+      });
+      if (project) {
+        timer.project = project;
+      }
+    }
+  }
+
   const resultTimer = await dataSource.manager.save(timer);
   res.status(200).send(resultTimer);
 };
@@ -112,6 +140,38 @@ const getUserTimers = async (req: Request, res: Response) => {
     res.status(400).send('Invalid user id');
     return;
   }
+
+  if (requestUserId) {
+    const responseTimers = await dataSource.manager.find(Timer, {
+      where: {
+        user: {
+          id: requestUserId,
+        },
+        isActive: requestQueryStatus === 'active' ? 1 : undefined,
+        startTime: Between(requestQueryFrom || 1, requestQueryTo || Date.now()),
+      },
+      relations: {
+        project: true,
+      },
+      order: {
+        startTime: 'DESC',
+      },
+    });
+
+    res.set('X-Total-timers', `${responseTimers ? responseTimers.length : 0}`);
+    res.status(200).json(responseTimers);
+  }
+};
+
+const getUserTimersTotalTimeByDay = async (req: Request, res: Response) => {
+  const requestUserId = req.params.uuid;
+  const requestQueryFrom = req.query.from;
+  const requestQueryDays = req.query.days ? +req.query.days : 0;
+
+  if (!uuidValidate(requestUserId)) {
+    res.status(400).send('Invalid user id');
+    return;
+  }
   const user = await dataSource.manager.findOneBy(User, { id: requestUserId });
 
   if (!user) {
@@ -119,19 +179,40 @@ const getUserTimers = async (req: Request, res: Response) => {
     return;
   }
 
-  const responseTimers = await dataSource.manager.find(Timer, {
-    where: {
-      user,
-      isActive: requestQueryStatus === 'active' ? 1 : undefined,
-      startTime: Between(requestQueryFrom || 1, requestQueryTo || Date.now()),
-    },
-    order: {
-      startTime: 'DESC',
-    },
-  });
+  if (requestQueryFrom) {
+    const responseData = await Promise.all(
+      Array(requestQueryDays)
+        .fill(0)
+        .map(async (_days, index) => {
+          const msInOneDay = 24 * 60 * 60 * 1000;
+          const start = +requestQueryFrom + msInOneDay * index;
+          const end = start + msInOneDay;
 
-  res.set('X-Total-timers', `${responseTimers ? responseTimers.length : 0}`);
-  res.status(200).json(responseTimers);
+          const dayTimers = await dataSource
+            .createQueryBuilder(Timer, 'timer')
+            .select('SUM(timer.totalTime)', 'totalTime')
+            .where('timer.userId = :user', { user: requestUserId })
+            .andWhere('timer.startTime >= :timerFrom', { timerFrom: start })
+            .andWhere('timer.startTime < :timerTo', { timerTo: end })
+            .getRawMany();
+
+          return {
+            day: index,
+            startTime: start,
+            totalTime: Number(dayTimers[0].totalTime),
+          };
+        })
+    );
+    res.status(200).json(responseData);
+  } else {
+    res.status(400).send('Invalid request params');
+  }
 };
 
-export { addTimer, deleteTimer, updateTimer, getUserTimers };
+export {
+  addTimer,
+  deleteTimer,
+  updateTimer,
+  getUserTimers,
+  getUserTimersTotalTimeByDay,
+};

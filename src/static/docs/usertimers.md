@@ -46,7 +46,7 @@
 </details>
 
 <details>
-  <summary>Get all user ACTIVE timers in INTREVAL by USER id</summary>
+  <summary>Get all user timers in INTREVAL by USER id</summary>
 
   ```
   method: GET

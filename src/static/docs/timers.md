@@ -33,8 +33,9 @@
 
   {
     "userId": "703e434d-e2de-4c99-b792-0a9d7feb2d64",
-    "title": "Timer test add 1",
+    "title": "Timer test add 1 with project 67",
     "startTime": "1231321313",
+    "projectId": "be469dcb-ceda-4d20-9cb5-73cf8d9d619d"
   }
   ```
 
@@ -61,6 +62,7 @@
     "title": ?,
     "totalTime": ?,
     "isActive": ?
+    "projectId": ?
   }
 
   * ? - optional param
