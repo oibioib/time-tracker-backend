@@ -5,7 +5,7 @@ import path from 'path';
 
 import { DEFAULT_PORT, ORIGIN_URLS } from './constants/constants';
 import dataSource from './data-source/data-source';
-import { defaultErrorHandler } from './helpers/expressHelpers';
+import { asyncWrapper, defaultErrorHandler } from './helpers/expressHelpers';
 import loggerRequest from './helpers/expressMiddlewares';
 import {
   deleteRequests,
@@ -28,7 +28,6 @@ const PORT = process.env.PORT ? +process.env.PORT : DEFAULT_PORT;
     );
     app.use(express.json());
     app.use(loggerRequest);
-    app.use(defaultErrorHandler);
 
     app.get('/', (req, res) => {
       res.sendFile(path.join(__dirname, 'static', 'docs', 'index.html'));
@@ -60,9 +59,11 @@ const PORT = process.env.PORT ? +process.env.PORT : DEFAULT_PORT;
     requests.forEach(({ requestsGroup, expressMethod }) => {
       const bindRequest = expressMethod.bind(app);
       requestsGroup.forEach(({ request, controller }) => {
-        bindRequest(request, controller);
+        bindRequest(request, asyncWrapper(controller));
       });
     });
+
+    app.use(defaultErrorHandler);
 
     app.listen(PORT, () => {
       console.log(magenta(`Server starts on port ${PORT}`));
