@@ -1,8 +1,4 @@
-import {
-  clientControllers,
-  projectControllers,
-  timersControllers,
-} from '../controllers';
+import { projectControllers, timersControllers } from '../controllers';
 
 const deleteRequests = [
   {
@@ -12,10 +8,6 @@ const deleteRequests = [
   {
     request: '/userprojects/:uuid',
     controller: projectControllers.deleteProject,
-  },
-  {
-    request: '/userclients/:uuid',
-    controller: clientControllers.deleteClient,
   },
 ];
 

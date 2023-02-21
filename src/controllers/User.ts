@@ -45,4 +45,37 @@ const addUser = async (req: Request, res: Response) => {
   }
 };
 
-export { getUsers, getUser, addUser };
+const updateUser = async (req: Request, res: Response) => {
+  const requestUserId = req.params.uuid;
+
+  if (!uuidValidate(requestUserId)) {
+    res.status(400).send('Invalid user id');
+    return;
+  }
+
+  const requestUser = await dataSource.manager.findOneBy(User, {
+    id: requestUserId,
+  });
+
+  if (!requestUser) {
+    res.status(400).send('User not found');
+    return;
+  }
+
+  const requestBodyParams = [req.body.name];
+
+  const requestBodyParamsFiltered = requestBodyParams.filter(
+    (requestBodyParam) => requestBodyParam !== undefined
+  );
+
+  if (!requestBodyParamsFiltered.length) {
+    res.status(400).send('No request body parameters');
+    return;
+  }
+
+  requestUser.name = req.body.name;
+  const responseUser = await dataSource.manager.save(requestUser);
+  res.status(200).send(responseUser);
+};
+
+export { getUsers, getUser, addUser, updateUser };

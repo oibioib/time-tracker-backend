@@ -31,7 +31,11 @@ const addTimer = async (req: Request, res: Response) => {
     newTimer.startTime = requestStartTime;
     newTimer.isActive = requestIsActive === 1 ? 1 : 0;
 
-    if (requestProjectId) {
+    if (
+      requestProjectId &&
+      requestProjectId !== 'null' &&
+      uuidValidate(requestProjectId)
+    ) {
       const project = await dataSource.manager.findOneBy(Project, {
         id: requestProjectId,
       });
@@ -113,16 +117,15 @@ const updateTimer = async (req: Request, res: Response) => {
 
   const requestProjectId = req.body.projectId;
 
-  if (requestProjectId) {
-    if (requestProjectId === 'null') {
-      timer.project = null;
-    } else {
-      const project = await dataSource.manager.findOneBy(Project, {
-        id: requestProjectId,
-      });
-      if (project) {
-        timer.project = project;
-      }
+  if (requestProjectId === 'null') {
+    timer.project = null;
+  } else if (requestProjectId && uuidValidate(requestProjectId)) {
+    const project = await dataSource.manager.findOneBy(Project, {
+      id: requestProjectId,
+    });
+
+    if (project) {
+      timer.project = project;
     }
   }
 
@@ -209,10 +212,56 @@ const getUserTimersTotalTimeByDay = async (req: Request, res: Response) => {
   }
 };
 
+const getProjectTimers = async (req: Request, res: Response) => {
+  const requestProjectId = req.params.uuid;
+
+  const requestQueryFrom = req.query.from ? +req.query.from : undefined;
+  const requestQueryTo = req.query.to ? +req.query.to : Date.now();
+
+  if (!uuidValidate(requestProjectId)) {
+    res.status(400).send('Invalid project id');
+    return;
+  }
+
+  if (requestProjectId) {
+    const responseProjectTimers = await dataSource.manager.find(Timer, {
+      where: {
+        project: {
+          id: requestProjectId,
+        },
+        startTime: Between(requestQueryFrom || 1, requestQueryTo || Date.now()),
+      },
+      relations: {
+        project: true,
+      },
+      order: {
+        startTime: 'DESC',
+      },
+    });
+
+    const project = await dataSource.manager.findOneBy(Project, {
+      id: requestProjectId,
+    });
+
+    res.set(
+      'X-Total-timers',
+      `${responseProjectTimers ? responseProjectTimers.length : 0}`
+    );
+
+    const responseData = {
+      title: project ? project.title : '',
+      timers: responseProjectTimers,
+    };
+
+    res.status(200).json(responseData);
+  }
+};
+
 export {
   addTimer,
   deleteTimer,
   updateTimer,
   getUserTimers,
   getUserTimersTotalTimeByDay,
+  getProjectTimers,
 };
