@@ -65,3 +65,29 @@
   url example: {url}/users
   ```
 </details>
+
+<details>
+  <summary>Update single user by USER id </summary>
+
+  ```
+  method: PATCH
+  ```
+
+  ```
+  request body:
+
+  {
+    "name": ?,
+  }
+
+  * ? - optional param
+  ```
+
+  ```
+  headers: Content-Type: application/json
+  ```
+
+  ```
+  url example: {url}/users/703e434d-e2de-4c99-b792-0a9d7feb2d64
+  ```
+</details>
