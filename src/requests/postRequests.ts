@@ -1,5 +1,4 @@
 import {
-  clientControllers,
   projectControllers,
   timersControllers,
   userControllers,
@@ -17,10 +16,6 @@ const postRequests = [
   {
     request: '/userprojects',
     controller: projectControllers.addUserProject,
-  },
-  {
-    request: '/userclients',
-    controller: clientControllers.addUserClient,
   },
 ];
 
