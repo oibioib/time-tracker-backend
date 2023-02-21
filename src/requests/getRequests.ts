@@ -1,5 +1,4 @@
 import {
-  clientControllers,
   projectControllers,
   timersControllers,
   userControllers,
@@ -62,16 +61,6 @@ const getUserTimers = [
   },
 ];
 
-const getUserClients = [
-  {
-    request: '/userclients',
-    controller: setServiceUnavailable,
-  },
-  {
-    request: '/userclients/:uuid',
-    controller: clientControllers.getUserClients,
-  },
-];
 const getUserTimersTimeByDay = [
   {
     request: '/usertimerstime',
@@ -83,14 +72,25 @@ const getUserTimersTimeByDay = [
   },
 ];
 
+const getProjectTimers = [
+  {
+    request: '/projecttimers',
+    controller: setServiceUnavailable,
+  },
+  {
+    request: '/projecttimers/:uuid',
+    controller: timersControllers.getProjectTimers,
+  },
+];
+
 const getRequests = [
   ...getUsers,
   ...getProjects,
   ...getTimers,
   ...getUserProjects,
   ...getUserTimers,
-  ...getUserClients,
   ...getUserTimersTimeByDay,
+  ...getProjectTimers,
 ];
 
 export default getRequests;
