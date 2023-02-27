@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -22,6 +23,9 @@ class Project {
 
   @Column({ default: 0 })
   salary: number;
+
+  @CreateDateColumn()
+  created_at: Date;
 
   @ManyToOne(() => User, (user) => user.projects)
   user: User;
