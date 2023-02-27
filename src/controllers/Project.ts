@@ -18,20 +18,27 @@ const getUserProjects = async (req: Request, res: Response) => {
     return;
   }
 
-  const userProjects = await dataSource.manager.findBy(Project, {
-    user: Equal(requestUserId),
+  const userProjects = await dataSource.manager.find(Project, {
+    where: {
+      user: Equal(requestUserId),
+    },
+    order: {
+      created_at: 'DESC',
+    },
   });
 
   if (userProjects) {
     type UserProject = {
       id: string;
       totalTime: number;
+      totalTimers: number;
     };
 
     const userProjectsWithTotalTime: UserProject[] = await dataSource
       .createQueryBuilder(Timer, 'timer')
       .leftJoinAndSelect('timer.project', 'project')
       .select('SUM(timer.totalTime)', 'totalTime')
+      .addSelect('COUNT(timer.id)', 'totalTimers')
       .addSelect('project.id', 'id')
       .addGroupBy('project.id')
       .where('timer.userId = :user', { user: requestUserId })
@@ -49,6 +56,9 @@ const getUserProjects = async (req: Request, res: Response) => {
         salary,
         totalTime: projectWithTotalTime.length
           ? +projectWithTotalTime[0].totalTime
+          : 0,
+        totalTimers: projectWithTotalTime.length
+          ? +projectWithTotalTime[0].totalTimers
           : 0,
       };
     });
